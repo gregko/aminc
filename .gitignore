@@ -1,0 +1,12 @@
+Debug/
+Release/
+AndyManMod/Debug/
+AndyManMod/Release/
+*.sdf
+*.log
+*.obj
+*.tlog
+*.idb
+*.pdb
+*.vcxproj.user
+*.v11.suo
