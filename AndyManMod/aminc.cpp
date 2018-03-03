@@ -167,34 +167,36 @@ static uint findVersionCode(FILE *fp)
             else
                 string_len = string_indices[i+1] - string_indices[i];
 
-            /*
-                * Each String entry contains Length header (2 bytes to 4 bytes) + Actual String + [0x00]
-                * Length header sometime contain duplicate values e.g. 20 20
-                * Actual string sometime contains 00, which need to be ignored
-                * Ending zero might be  2 byte or 4 byte
-                *
-                * TODO: Consider both Length bytes and String length > 32767 characters
-                */
-            byte short_buf[2];
-            fread(&short_buf, sizeof(short_buf), 1, fp);
-            int actual_str_len = 0;
-            if(short_buf[0] == short_buf[1]) // Its repeating, happens for Non-Manifest file. e.g. 20 20
-                actual_str_len = short_buf[0];
-            else
-                actual_str_len = short_buf[0] + 256*short_buf[1];
+			string str_buf;
+			if (string_len > 0) {
+				/*
+				 * Each String entry contains Length header (2 bytes to 4 bytes) + Actual String + [0x00]
+				 * Length header sometime contain duplicate values e.g. 20 20
+				 * Actual string sometime contains 00, which need to be ignored
+				 * Ending zero might be  2 byte or 4 byte
+				 *
+				 * TODO: Consider both Length bytes and String length > 32767 characters
+				 */
+				byte short_buf[2];
+				fread(&short_buf, sizeof(short_buf), 1, fp);
+				int actual_str_len = 0;
+				if (short_buf[0] == short_buf[1]) // Its repeating, happens for Non-Manifest file. e.g. 20 20
+					actual_str_len = short_buf[0];
+				else
+					actual_str_len = short_buf[0] + 256 * short_buf[1];
 
-            string str_buf;
-            vector<byte> buf(string_len - 2); // Skip 2 Length bytes, already read.
-            fread(&buf[0], buf.size(), 1, fp);
-            int j = 0;
-            for (uint k=0; k < buf.size(); k++){
-                // Skipp 0x00
-                if (buf[k] != 0x00) {
-                    str_buf += buf[k];
-                    if (++j >= actual_str_len)
-                        break;
-                }
-            }
+				vector<byte> buf(string_len - 2); // Skip 2 Length bytes, already read.
+				fread(&buf[0], buf.size(), 1, fp);
+				int j = 0;
+				for (uint k = 0; k < buf.size(); k++) {
+					// Skipp 0x00
+					if (buf[k] != 0x00) {
+						str_buf += buf[k];
+						if (++j >= actual_str_len)
+							break;
+					}
+				}
+			}
 
             stringPool.push_back(str_buf);
         }

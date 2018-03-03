@@ -10,3 +10,5 @@ AndyManMod/Release/
 *.pdb
 *.vcxproj.user
 *.v11.suo
+/.suo
+*.VC.db
